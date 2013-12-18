@@ -7,6 +7,7 @@
 
 #include "request.h"
 #include "pickle.h"
+#include "lib/msgpuck/msgpuck.h"
 #include "box/box.h"
 #include "port.h"
 
@@ -54,8 +55,8 @@ gen_uint(char *r, const struct keygen_params *params)
 {
 	(void) params;
 #if defined(MSGPACK)
-	r = mp_array_pack(r, 1);
-	r = mp_uint_pack(r, rand());
+	r = mp_encode_array(r, 1);
+	r = mp_encode_uint(r, rand());
 #else
 	r = pack_u32(r, 1);
 	r = pack_varint32(r, sizeof(uint32_t));
@@ -69,9 +70,9 @@ gen_str(char *r, const struct keygen_params *params)
 {
 	char buf[params->len + 1];
 #if defined(MSGPACK)
-	r = mp_array_pack(r, 1);
+	r = mp_encode_array(r, 1);
 	randstr(buf, params->len);
-	r = mp_str_pack(r, buf, params->len);
+	r = mp_encode_str(r, buf, params->len);
 #else
 	r = pack_u32(r, 1);
 	randstr(buf, params->len);
@@ -85,9 +86,9 @@ gen_uint_uint(char *r, const struct keygen_params *params)
 {
 	(void) params;
 #if defined(MSGPACK)
-	r = mp_array_pack(r, 2);
-	r = mp_uint_pack(r, rand());
-	r = mp_uint_pack(r, rand());
+	r = mp_encode_array(r, 2);
+	r = mp_encode_uint(r, rand());
+	r = mp_encode_uint(r, rand());
 #else
 	r = pack_u32(r, 2);
 	r = pack_varint32(r, sizeof(uint32_t));
@@ -103,11 +104,11 @@ gen_str_str(char *r, const struct keygen_params *params)
 {
 	char buf[params->len + 1];
 #if defined(MSGPACK)
-	r = mp_array_pack(r, 2);
+	r = mp_encode_array(r, 2);
 	randstr(buf, params->len);
-	r = mp_str_pack(r, buf, params->len);
+	r = mp_encode_str(r, buf, params->len);
 	randstr(buf, params->len);
-	r = mp_str_pack(r, buf, params->len);
+	r = mp_encode_str(r, buf, params->len);
 #else
 	r = pack_u32(r, 2);
 	randstr(buf, params->len);
@@ -123,10 +124,10 @@ gen_uint_str(char *r, const struct keygen_params *params)
 {
 	char buf[params->len + 1];
 #if defined(MSGPACK)
-	r = mp_array_pack(r, 2);
-	r = mp_uint_pack(r, rand());
+	r = mp_encode_array(r, 2);
+	r = mp_encode_uint(r, rand());
 	randstr(buf, params->len);
-	r = mp_str_pack(r, buf, params->len);
+	r = mp_encode_str(r, buf, params->len);
 #else
 	r = pack_u32(r, 2);
 	r = pack_varint32(r, sizeof(uint32_t));
@@ -142,10 +143,10 @@ gen_str_uint(char *r, const struct keygen_params *params)
 {
 	char buf[params->len + 1];
 #if defined(MSGPACK)
-	r = mp_array_pack(r, 2);
+	r = mp_encode_array(r, 2);
 	randstr(buf, params->len);
-	r = mp_str_pack(r, buf, params->len);
-	r = mp_uint_pack(r, rand());
+	r = mp_encode_str(r, buf, params->len);
+	r = mp_encode_uint(r, rand());
 #else
 	r = pack_u32(r, 2);
 	randstr(buf, params->len);

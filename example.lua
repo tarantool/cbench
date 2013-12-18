@@ -22,7 +22,7 @@ workloads = {
 }
 
 -- Run benchmark
-local result = bench.run(workloads, 200000, 3);
+local result = bench.run(workloads, 500000, 5);
 
 -- Encode the result and save to a file
 json_result = box.cjson.encode(result)
