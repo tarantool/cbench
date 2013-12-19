@@ -28,6 +28,7 @@ else()
 endif()
 
 include_directories(${TARANTOOL_INCLUDE_DIR})
+include_directories(${TARANTOOL_INCLUDE_DIR}/..)
 include_directories(${TARANTOOL_INCLUDE_DIR}/lib)
 include_directories(${TARANTOOL_BOX_INCLUDE_DIR})
 

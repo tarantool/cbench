@@ -10,6 +10,7 @@
 #include "lib/msgpuck/msgpuck.h"
 #include "box/box.h"
 #include "port.h"
+#include "fiber.h"
 
 enum { REQUEST_BODY_MAXLEN = 1024 };
 
@@ -214,6 +215,7 @@ test_selects(const struct test_params *params)
 		port.count = 0;
 		box_process((struct port *) &port, &request);
 		assert(port.count == 1);
+		fiber_gc();
 	}
 }
 
@@ -232,6 +234,7 @@ test_replaces(const struct test_params *params)
 		request_create(&request, REPLACE, reqdata, r - reqdata);
 		port.count = 0;
 		box_process((struct port *) &port, &request);
+		fiber_gc();
 	}
 }
 
@@ -250,6 +253,7 @@ test_deletes(const struct test_params *params)
 		request_create(&request, DELETE, reqdata, r - reqdata);
 		port.count = 0;
 		box_process((struct port *) &port, &request);
+		fiber_gc();
 	}
 }
 
