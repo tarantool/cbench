@@ -5,12 +5,15 @@
 #include <stdio.h>
 #include <sys/time.h>
 
-#include "request.h"
-#include "pickle.h"
-#include "lib/msgpuck/msgpuck.h"
 #include "box/box.h"
+#include "request.h"
+#include "tuple.h"
 #include "port.h"
 #include "fiber.h"
+
+#if defined(MSGPUCK_H_INCLUDED)
+#define MSGPACK 1
+#endif
 
 enum { REQUEST_BODY_MAXLEN = 1024 };
 
@@ -196,11 +199,23 @@ test_keys(const struct test_params *params)
 	}
 }
 
+static void
+process(struct port_bench *port, uint32_t op, const char *reqdata,
+	uint32_t reqlen)
+{
+#if defined(MSGPACK)
+	struct request request;
+	request_create(&request, op, reqdata, reqlen);
+	box_process((struct port *) port, &request);
+#else
+	box_process((struct port *) port, op, reqdata, reqlen);
+#endif
+}
+
 void
 test_selects(const struct test_params *params)
 {
 	char reqdata[REQUEST_BODY_MAXLEN];
-	struct request request;
 	struct port_bench port = { &port_bench_vtab, 0 };
 
 	for (uint32_t i = 0; i < params->count; i++) {
@@ -211,9 +226,8 @@ test_selects(const struct test_params *params)
 		r = pack_u32(r, 4294967295); // limit
 		r = pack_u32(r, 1); // key count
 		r = params->keygen(r, params->keygen_params);
-		request_create(&request, SELECT, reqdata, r - reqdata);
 		port.count = 0;
-		box_process((struct port *) &port, &request);
+		process(&port, SELECT, reqdata, r - reqdata);
 		assert(port.count == 1);
 		fiber_gc();
 	}
@@ -223,7 +237,6 @@ void
 test_replaces(const struct test_params *params)
 {
 	char reqdata[REQUEST_BODY_MAXLEN];
-	struct request request;
 	struct port_bench port = { &port_bench_vtab, 0 };
 
 	for (uint32_t i = 0; i < params->count; i++) {
@@ -231,9 +244,8 @@ test_replaces(const struct test_params *params)
 		r = pack_u32(r, params->space_id); // space
 		r = pack_u32(r, 0); // flags
 		r = params->keygen(r, params->keygen_params);
-		request_create(&request, REPLACE, reqdata, r - reqdata);
 		port.count = 0;
-		box_process((struct port *) &port, &request);
+		process(&port, REPLACE, reqdata, r - reqdata);
 		fiber_gc();
 	}
 }
@@ -242,7 +254,6 @@ void
 test_deletes(const struct test_params *params)
 {
 	char reqdata[REQUEST_BODY_MAXLEN];
-	struct request request;
 	struct port_bench port = { &port_bench_vtab, 0 };
 
 	for (uint32_t i = 0; i < params->count; i++) {
@@ -250,9 +261,8 @@ test_deletes(const struct test_params *params)
 		r = pack_u32(r, params->space_id);
 		r = pack_u32(r, 0); /* flags */
 		r = params->keygen(r, params->keygen_params);
-		request_create(&request, DELETE, reqdata, r - reqdata);
 		port.count = 0;
-		box_process((struct port *) &port, &request);
+		process(&port, DELETE, reqdata, r - reqdata);
 		fiber_gc();
 	}
 }

@@ -101,21 +101,19 @@ local get_test = function(name)
 end
 
 --- Print spaces configuration for 1.4.x
-local show_config = function(runs)
+local show_config = function(workloads)
     -- Print required configuration
     print('# Please add to your tarantool.cfg')
-    for space_id, run in ipairs(runs) do
+    for space_id, wl in ipairs(workloads) do
         space_id = space_id - 1
-        local index_type, index_parts, tests = unpack(run)
-        index_type = string.upper(index_type)
         print(string.format('space[%d].enabled = 1', space_id))
         print(string.format('space[%d].index[0].unique = 1', space_id))
         print(string.format('space[%d].index[0].type = \"%s\"',
-                space_id, index_type))
-        for i=1,#index_parts/2,1 do
-            local part_fieldno = index_parts[2 * (i - 1) + 1]
-            local part_type = string.upper(index_parts[2 * (i - 1) + 2])
-            print(string.format('space[%d].index[0].key_field[%d].field_no = %d',
+                space_id, string.upper(wl.type)))
+        for i=1,#wl.parts/2,1 do
+            local part_fieldno = wl.parts[2 * (i - 1) + 1]
+            local part_type = string.upper(wl.parts[2 * (i - 1) + 2])
+            print(string.format('space[%d].index[0].key_field[%d].fieldno = %d',
                     space_id, i - 1, part_fieldno))
             print(string.format('space[%d].index[0].key_field[%d].type = "%s"',
                     space_id, i - 1, part_type))
@@ -167,10 +165,10 @@ local run = function(workloads, count, rep)
             local space_name = tostring(space_id)
             space = box.schema.create_space(space_name, { id = space_id })
             space:create_index('primary', wl.type, { parts = wl.parts })
-        elseif box.space[space_id] ~= nil then
+        elseif box.space[space_id] == nil then
             -- All required spaces must be manually added to tarantool.cfg.
             -- Print required configuration and exit.
-            return show_config()
+            return show_config(workloads)
         end
 
         local rt = {}

@@ -6,13 +6,13 @@ add_definitions("-D__STDC_FORMAT_MACROS=1")
 add_definitions("-D__STDC_LIMIT_MACROS=1")
 add_definitions("-D__STDC_CONSTANT_MACROS=1")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -DMSGPACK=1 -Wall -Wextra -fvisibility=hidden")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -Wextra -fvisibility=hidden")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native")
 
 find_path(TARANTOOL_INCLUDE_DIR
     NAMES box/box.h
-    PATHS "../../src/"
+    PATHS "../../include/" "../../src/"
 )
 find_path(TARANTOOL_BOX_INCLUDE_DIR
     NAMES request.h port.h
@@ -29,6 +29,7 @@ endif()
 
 include_directories(${TARANTOOL_INCLUDE_DIR})
 include_directories(${TARANTOOL_INCLUDE_DIR}/..)
+include_directories(${TARANTOOL_INCLUDE_DIR}/../third_party)
 include_directories(${TARANTOOL_INCLUDE_DIR}/lib)
 include_directories(${TARANTOOL_BOX_INCLUDE_DIR})
 
