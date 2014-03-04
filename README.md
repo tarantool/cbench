@@ -43,13 +43,14 @@ You can find sample `tarantool.cfg` and `init.lua` files in the root tree of the
     ~/tarantool/test/var $ ${EDITOR} tarantool.cfg
     ~/tarantool/test/var $ ${EDITOR} init.lua
 
-With Tarantool 1.5 and older the data storage must be initialized explicitly:
+Start Tarantool to get benchmark results (Tarantool 1.5):
 
     ~/tarantool/test/var $ ../../src/box/tarantool_box --init-storage # only for 1.5
-
-Start Tarantool to get benchmark results:
-
     ~/tarantool/test/var $ ../../src/box/tarantool_box
+
+Start Tarantool to get benchmark results (Tarantool 1.6):
+
+    ~/tarantool/test/var $ ./init.lua
 
 Results are printed to the console and `tarantool.log`:
 

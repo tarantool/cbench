@@ -164,7 +164,7 @@ local run = function(workloads, count, rep)
             -- Create required spaces using box.schema API
             local space_name = tostring(space_id)
             space = box.schema.create_space(space_name, { id = space_id })
-            space:create_index('primary', wl.type, { parts = wl.parts })
+            space:create_index('primary', { type = wl.type, parts = wl.parts })
         elseif box.space[space_id] == nil then
             -- All required spaces must be manually added to tarantool.cfg.
             -- Print required configuration and exit.

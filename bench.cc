@@ -12,13 +12,15 @@
 #include "fiber.h"
 
 #if defined(MSGPUCK_H_INCLUDED)
-#define MSGPACK 1
+#define MASTER 1
+#include "iproto_constants.h"
 #endif
 
 enum { REQUEST_BODY_MAXLEN = 1024 };
 
 /* {{{ Utils */
 
+#if !defined(MASTER)
 void
 assert_fail(const char *assertion, const char *file, unsigned int line,
 	    const char *function)
@@ -28,6 +30,7 @@ assert_fail(const char *assertion, const char *file, unsigned int line,
 	printf("assert: %s:%d %s\n", file, line, assertion);
 	exit(1);
 }
+#endif /* STABLE */
 
 double
 nowtime(void)
@@ -58,10 +61,10 @@ char *
 gen_uint(char *r, const struct keygen_params *params)
 {
 	(void) params;
-#if defined(MSGPACK)
+#if defined(MASTER)
 	r = mp_encode_array(r, 1);
 	r = mp_encode_uint(r, rand());
-#else
+#else /* STABLE */
 	r = pack_u32(r, 1);
 	r = pack_varint32(r, sizeof(uint32_t));
 	r = pack_u32(r, rand());
@@ -73,11 +76,11 @@ API_EXPORT char *
 gen_str(char *r, const struct keygen_params *params)
 {
 	char buf[params->len + 1];
-#if defined(MSGPACK)
+#if defined(MASTER)
 	r = mp_encode_array(r, 1);
 	randstr(buf, params->len);
 	r = mp_encode_str(r, buf, params->len);
-#else
+#else /* STABLE */
 	r = pack_u32(r, 1);
 	randstr(buf, params->len);
 	r = pack_lstr(r, buf, params->len);
@@ -89,11 +92,11 @@ char *
 gen_uint_uint(char *r, const struct keygen_params *params)
 {
 	(void) params;
-#if defined(MSGPACK)
+#if defined(MASTER)
 	r = mp_encode_array(r, 2);
 	r = mp_encode_uint(r, rand());
 	r = mp_encode_uint(r, rand());
-#else
+#else /* STABLE */
 	r = pack_u32(r, 2);
 	r = pack_varint32(r, sizeof(uint32_t));
 	r = pack_u32(r, rand());
@@ -107,13 +110,13 @@ API_EXPORT char *
 gen_str_str(char *r, const struct keygen_params *params)
 {
 	char buf[params->len + 1];
-#if defined(MSGPACK)
+#if defined(MASTER)
 	r = mp_encode_array(r, 2);
 	randstr(buf, params->len);
 	r = mp_encode_str(r, buf, params->len);
 	randstr(buf, params->len);
 	r = mp_encode_str(r, buf, params->len);
-#else
+#else /* STABLE */
 	r = pack_u32(r, 2);
 	randstr(buf, params->len);
 	r = pack_lstr(r, buf, params->len);
@@ -127,12 +130,12 @@ char *
 gen_uint_str(char *r, const struct keygen_params *params)
 {
 	char buf[params->len + 1];
-#if defined(MSGPACK)
+#if defined(MASTER)
 	r = mp_encode_array(r, 2);
 	r = mp_encode_uint(r, rand());
 	randstr(buf, params->len);
 	r = mp_encode_str(r, buf, params->len);
-#else
+#else /* STABLE */
 	r = pack_u32(r, 2);
 	r = pack_varint32(r, sizeof(uint32_t));
 	r = pack_u32(r, rand());
@@ -146,12 +149,12 @@ char *
 gen_str_uint(char *r, const struct keygen_params *params)
 {
 	char buf[params->len + 1];
-#if defined(MSGPACK)
+#if defined(MASTER)
 	r = mp_encode_array(r, 2);
 	randstr(buf, params->len);
 	r = mp_encode_str(r, buf, params->len);
 	r = mp_encode_uint(r, rand());
-#else
+#else /* STABLE */
 	r = pack_u32(r, 2);
 	randstr(buf, params->len);
 	r = pack_lstr(r, buf, params->len);
@@ -165,20 +168,21 @@ gen_str_uint(char *r, const struct keygen_params *params)
 
 /* {{{ Tests */
 
-static void
-port_bench_add_tuple(struct port *port, struct tuple *tuple, uint32_t flags);
-
 struct port_bench
 {
 	struct port_vtab *vtab;
 	size_t count;
 };
 
-static struct port_vtab port_bench_vtab = {
-	port_bench_add_tuple,
-	null_port_eof,
-};
-
+#if defined(MASTER)
+static void
+port_bench_add_tuple(struct port *port, struct tuple *tuple)
+{
+	(void) tuple;
+	struct port_bench *port_bench = (struct port_bench *) port;
+	port_bench->count++;
+}
+#else /* STABLE */
 static void
 port_bench_add_tuple(struct port *port, struct tuple *tuple, uint32_t flags)
 {
@@ -187,6 +191,12 @@ port_bench_add_tuple(struct port *port, struct tuple *tuple, uint32_t flags)
 	struct port_bench *port_bench = (struct port_bench *) port;
 	port_bench->count++;
 }
+#endif
+
+static struct port_vtab port_bench_vtab = {
+	port_bench_add_tuple,
+	null_port_eof,
+};
 
 void
 test_keys(const struct test_params *params)
@@ -199,19 +209,6 @@ test_keys(const struct test_params *params)
 	}
 }
 
-static void
-process(struct port_bench *port, uint32_t op, const char *reqdata,
-	uint32_t reqlen)
-{
-#if defined(MSGPACK)
-	struct request request;
-	request_create(&request, op, reqdata, reqlen);
-	box_process((struct port *) port, &request);
-#else
-	box_process((struct port *) port, op, reqdata, reqlen);
-#endif
-}
-
 void
 test_selects(const struct test_params *params)
 {
@@ -219,15 +216,24 @@ test_selects(const struct test_params *params)
 	struct port_bench port = { &port_bench_vtab, 0 };
 
 	for (uint32_t i = 0; i < params->count; i++) {
+		port.count = 0;
 		char *r = reqdata;
+#if defined(MASTER)
+		struct request request;
+		request_create(&request, IPROTO_SELECT);
+		request.space_id = params->space_id;
+		request.key = r;
+		request.key_end = params->keygen(r, params->keygen_params);
+		box_process((struct port *) &port, &request);
+#else /* STABLE */
 		r = pack_u32(r, params->space_id); // space
 		r = pack_u32(r, 0); // index
 		r = pack_u32(r, 0); // offset
 		r = pack_u32(r, 4294967295); // limit
 		r = pack_u32(r, 1); // key count
 		r = params->keygen(r, params->keygen_params);
-		port.count = 0;
-		process(&port, SELECT, reqdata, r - reqdata);
+		box_process((struct port *) &port, SELECT, reqdata, r - reqdata);
+#endif
 		assert(port.count == 1);
 		fiber_gc();
 	}
@@ -240,12 +246,21 @@ test_replaces(const struct test_params *params)
 	struct port_bench port = { &port_bench_vtab, 0 };
 
 	for (uint32_t i = 0; i < params->count; i++) {
+		port.count = 0;
 		char *r = reqdata;
+#if defined(MASTER)
+		struct request request;
+		request_create(&request, IPROTO_REPLACE);
+		request.space_id = params->space_id;
+		request.tuple = r;
+		request.tuple_end = params->keygen(r, params->keygen_params);
+		box_process((struct port *) &port, &request);
+#else /* STABLE */
 		r = pack_u32(r, params->space_id); // space
 		r = pack_u32(r, 0); // flags
 		r = params->keygen(r, params->keygen_params);
-		port.count = 0;
-		process(&port, REPLACE, reqdata, r - reqdata);
+		box_process((struct port *) &port, REPLACE, reqdata, r - reqdata);
+#endif
 		fiber_gc();
 	}
 }
@@ -258,11 +273,20 @@ test_deletes(const struct test_params *params)
 
 	for (uint32_t i = 0; i < params->count; i++) {
 		char *r = reqdata;
+		port.count = 0;
+#if defined(MASTER)
+		struct request request;
+		request_create(&request, IPROTO_DELETE);
+		request.space_id = params->space_id;
+		request.key = r;
+		request.key_end = params->keygen(r, params->keygen_params);
+		box_process((struct port *) &port, &request);
+#else /* STABLE */
 		r = pack_u32(r, params->space_id);
 		r = pack_u32(r, 0); /* flags */
 		r = params->keygen(r, params->keygen_params);
-		port.count = 0;
-		process(&port, DELETE, reqdata, r - reqdata);
+		box_process((struct port *) &port, DELETE, reqdata, r - reqdata);
+#endif
 		fiber_gc();
 	}
 }

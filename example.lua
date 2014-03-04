@@ -1,3 +1,5 @@
+#!../../src/box/tarantool_box
+
 package.path = '?.lua' -- A workaround on Bug#38
 local bench = require "bench"
 
