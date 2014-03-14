@@ -222,6 +222,7 @@ test_selects(const struct test_params *params)
 		struct request request;
 		request_create(&request, IPROTO_SELECT);
 		request.space_id = params->space_id;
+		request.limit = 1;
 		request.key = r;
 		request.key_end = params->keygen(r, params->keygen_params);
 		box_process((struct port *) &port, &request);
