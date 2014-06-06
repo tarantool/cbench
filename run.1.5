@@ -1,5 +1,6 @@
 #!/bin/sh
 rm *.snap
+export LD_LIBRARY_PATH=.
 ../../src/box/tarantool_box --init_storage
 ../../src/box/tarantool_box
 
