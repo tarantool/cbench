@@ -267,6 +267,46 @@ test_replaces(const struct test_params *params)
 }
 
 void
+test_updates(const struct test_params *params)
+{
+	char reqdata[REQUEST_BODY_MAXLEN];
+	struct port_bench port = { &port_bench_vtab, 0 };
+
+	for (uint32_t i = 0; i < params->count; i++) {
+		char *r = reqdata;
+		port.count = 0;
+#if defined(MASTER)
+		struct request request;
+		request_create(&request, IPROTO_UPDATE);
+		request.space_id = params->space_id;
+		request.key = r;
+		r = params->keygen(r, params->keygen_params);
+		request.key_end = r;
+		request.tuple = r;
+		r = mp_encode_array(r, 1);
+		r = mp_encode_array(r, 3);
+		r = mp_encode_str(r, "!", 1);
+		r = mp_encode_int(r, -1);
+		r = mp_encode_uint(r, 0);
+		request.tuple_end = r;
+		box_process((struct port *) &port, &request);
+#else /* STABLE */
+		r = pack_u32(r, params->space_id);
+		r = pack_u32(r, 0); /* flags */
+		r = params->keygen(r, params->keygen_params);
+		r = pack_u32(r, 1); /* op_count */
+		r = pack_u32(r, -1); /* field_no */
+		r = pack_u8(r, 7); /* UPDATE_OP_INSERT */
+		r = pack_varint32(r, sizeof(uint32_t));
+		r = pack_u32(r, 0);
+		box_process((struct port *) &port, UPDATE, reqdata, r - reqdata);
+#endif
+		fiber_gc();
+	}
+
+}
+
+void
 test_deletes(const struct test_params *params)
 {
 	char reqdata[REQUEST_BODY_MAXLEN];

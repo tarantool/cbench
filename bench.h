@@ -62,6 +62,9 @@ API_EXPORT void
 test_replaces(const struct test_params *params);
 
 API_EXPORT void
+test_updates(const struct test_params *params);
+
+API_EXPORT void
 test_deletes(const struct test_params *params);
 
 /* }}} */

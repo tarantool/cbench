@@ -62,6 +62,9 @@ ffi.cdef([[
     test_replaces(const struct test_params *params);
 
     void
+    test_updates(const struct test_params *params);
+
+    void
     test_deletes(const struct test_params *params);
 
     /* }}} */
@@ -162,7 +165,7 @@ local run = function(workloads, count, rep)
 
         if box.info.version >= "1.6.0" then
             -- Create required spaces using box.schema API
-            local space_name = tostring(space_id)
+            local space_name = 'space'..tostring(space_id)
             space = box.schema.create_space(space_name, { id = space_id })
             space:create_index('primary', { type = wl.type, parts = wl.parts })
         elseif box.space[space_id] == nil then
