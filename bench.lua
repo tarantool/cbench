@@ -22,22 +22,22 @@ ffi.cdef([[
     typedef char *(*keygen_t)(char *, const struct keygen_params *);
 
     char *
-    gen_uint(char *r, const struct keygen_params *params);
+    gen_num(char *r, const struct keygen_params *params);
 
     char *
     gen_str(char *r, const struct keygen_params *params);
 
     char *
-    gen_uint_uint(char *r, const struct keygen_params *params);
+    gen_num_num(char *r, const struct keygen_params *params);
 
     char *
     gen_str_str(char *r, const struct keygen_params *params);
 
     char *
-    gen_uint_str(char *r, const struct keygen_params *params);
+    gen_num_str(char *r, const struct keygen_params *params);
 
     char *
-    gen_str_uint(char *r, const struct keygen_params *params);
+    gen_str_num(char *r, const struct keygen_params *params);
 
     /* }}} */
 
@@ -89,13 +89,7 @@ end
 
 --- Find keygen by name
 local get_keygen = function(index_parts)
-    local types = {}
-    for i=1,#index_parts/2,1 do
-        local type = string.lower(index_parts[2 * (i - 1) + 2])
-        if type == "num" then type = "uint" end 
-        table.insert(types, type)
-    end
-    return libbench["gen_"..table.concat(types, "_")]
+    return libbench["gen_"..table.concat(index_parts, "_")]
 end
 
 --- Find test by name
@@ -113,13 +107,11 @@ local show_config = function(workloads)
         print(string.format('space[%d].index[0].unique = 1', space_id))
         print(string.format('space[%d].index[0].type = \"%s\"',
                 space_id, string.upper(wl.type)))
-        for i=1,#wl.parts/2,1 do
-            local part_fieldno = wl.parts[2 * (i - 1) + 1]
-            local part_type = string.upper(wl.parts[2 * (i - 1) + 2])
+        for fno, ftype in ipairs(wl.parts) do
             print(string.format('space[%d].index[0].key_field[%d].fieldno = %d',
-                    space_id, i - 1, part_fieldno))
+                    space_id, fno - 1, fno - 1))
             print(string.format('space[%d].index[0].key_field[%d].type = "%s"',
-                    space_id, i - 1, part_type))
+                    space_id, fno - 1, ftype))
         end
         print('')
     end
@@ -163,11 +155,16 @@ local run = function(workloads, count, rep)
         tparams.space_id = space_id
         tparams.count = count
 
-        if box.info.version >= "1.6.0" then
+        if box.info.version >= "1.6" then
             -- Create required spaces using box.schema API
             local space_name = 'space'..tostring(space_id)
             space = box.schema.create_space(space_name, { id = space_id })
-            space:create_index('primary', { type = wl.type, parts = wl.parts })
+            local parts = {}
+            for fno, ftype in ipairs(wl.parts) do
+                table.insert(parts, fno)
+                table.insert(parts, ftype)
+            end
+            space:create_index('primary', { type = wl.type, parts = parts })
         elseif box.space[space_id] == nil then
             -- All required spaces must be manually added to tarantool.cfg.
             -- Print required configuration and exit.
@@ -188,13 +185,7 @@ local run = function(workloads, count, rep)
             rk = rk + bench(get_test('keys'), tparams) / rep
         end
 
-        local types = {}
-        for i=1,#wl.parts/2,1 do
-            local type = string.upper(wl.parts[2 * (i - 1) + 2])
-            if type == "num" then type = "uint" end 
-                table.insert(types, type)
-        end
-        local index_description = table.concat(types, " + ")
+        local index_description = table.concat(wl.parts, " + ")
 
         res = {}
         wldescription = string.upper(wl.type) .. " " .. index_description

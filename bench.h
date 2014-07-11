@@ -22,22 +22,22 @@ struct keygen_params {
 typedef char *(*keygen_t)(char *, const struct keygen_params *);
 
 API_EXPORT char *
-gen_uint(char *r, const struct keygen_params *params);
+gen_num(char *r, const struct keygen_params *params);
 
 API_EXPORT char *
 gen_str(char *r, const struct keygen_params *params);
 
 API_EXPORT char *
-gen_uint_uint(char *r, const struct keygen_params *params);
+gen_num_num(char *r, const struct keygen_params *params);
 
 API_EXPORT char *
 gen_str_str(char *r, const struct keygen_params *params);
 
 API_EXPORT char *
-gen_uint_str(char *r, const struct keygen_params *params);
+gen_num_str(char *r, const struct keygen_params *params);
 
 API_EXPORT char *
-gen_str_uint(char *r, const struct keygen_params *params);
+gen_str_num(char *r, const struct keygen_params *params);
 
 /* }}} */
 
