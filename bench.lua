@@ -62,6 +62,9 @@ ffi.cdef([[
     test_replaces(const struct test_params *params);
 
     void
+    test_selrepl(const struct test_params *params);
+
+    void
     test_updates(const struct test_params *params);
 
     void
@@ -155,10 +158,10 @@ local run = function(workloads, count, rep)
         tparams.space_id = space_id
         tparams.count = count
 
-        if box.info.version >= "1.6" then
+        if box.info.version == nil or string.find(box.info.version, "1.6.") == 1 then
             -- Create required spaces using box.schema API
             local space_name = 'space'..tostring(space_id)
-            space = box.schema.create_space(space_name, { id = space_id })
+            local space = box.schema.create_space(space_name, { id = space_id })
             local parts = {}
             for fno, ftype in ipairs(wl.parts) do
                 table.insert(parts, fno)
@@ -187,8 +190,8 @@ local run = function(workloads, count, rep)
 
         local index_description = table.concat(wl.parts, " + ")
 
-        res = {}
-        wldescription = string.upper(wl.type) .. " " .. index_description
+        local res = {}
+        local wldescription = string.upper(wl.type) .. " " .. index_description
         print(wldescription)
         print('----------------------------------')
         for wid, wname in ipairs(wl.tests) do

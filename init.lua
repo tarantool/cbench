@@ -2,17 +2,16 @@
 
 if rawget(box, 'info') == nil then
     box.cfg {
-        primary_port        = 0,
         slab_alloc_arena    = 1,
         pid_file            = "tarantool.pid",
         wal_mode            = "none",
         snap_dir = ".",
-        log_dir = "."
+        work_dir = "."
     }
 end
 
 -- Tests to run
-tests = {'replaces', 'selects', 'updates', 'deletes'}
+tests = {'replaces', 'selects', 'selrepl', 'updates', 'deletes'}
 -- Workloads
 workloads = {
     -- Run one extra test to warm up the server
@@ -40,8 +39,8 @@ result = bench.run(workloads, 1000000, 5);
 
 -- Encode the result and save to a file
 json_result = json.encode(result)
-filename = string.format('bench-result-%s-%s.json',
-    box.info.version, box.info.build.target);
+filename = string.format('bench-result-%s.json',
+    box.info.version);
 file = io.open(filename, 'w')
 file:write(json_result)
 file:flush()
