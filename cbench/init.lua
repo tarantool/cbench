@@ -78,7 +78,7 @@ ffi.cdef([[
 ]])
 
 local builtin = ffi.C
-local libbench = ffi.load("libbench.so")
+local libbench = ffi.load(package.searchpath('cbench.bench', package.cpath))
 
 -- Return current timestamp with float part
 local nowtime = function()

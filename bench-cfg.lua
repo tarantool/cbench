@@ -1,14 +1,12 @@
-#!../../src/tarantool
+#!/usr/bin/env tarantool
 
-if rawget(box, 'info') == nil then
-    box.cfg {
-        slab_alloc_arena    = 1,
-        pid_file            = "tarantool.pid",
-        wal_mode            = "none",
-        snap_dir = ".",
-        work_dir = "."
-    }
-end
+box.cfg {
+    slab_alloc_arena    = 1,
+    pid_file            = "tarantool.pid",
+    wal_mode            = "none",
+    snap_dir = ".",
+    work_dir = "."
+}
 
 -- Tests to run
 tests = {'replaces', 'selects', 'selrepl', 'updates', 'deletes'}
@@ -31,11 +29,13 @@ workloads = {
 --]]
 }
 
-local bench = require "bench"
-local json = box.cjson or require('json')
+local bench = require('cbench')
+local json = require('json')
 
+print('Benchmarking...')
 -- Run benchmark
 result = bench.run(workloads, 1000000, 5);
+print('Done')
 
 -- Encode the result and save to a file
 json_result = json.encode(result)

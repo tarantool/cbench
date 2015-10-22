@@ -1,5 +1,0 @@
-#!/bin/sh
-rereldeb
-rm *.snap
-export LD_LIBRARY_PATH=.
-./init.lua

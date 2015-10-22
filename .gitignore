@@ -14,7 +14,7 @@
 *.out*
 *.user
 *.cbp
-box.pid
+*.pid
 CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
