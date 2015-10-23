@@ -27,7 +27,8 @@ randstr(char *out, size_t len)
 			"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 			"abcdefghijklmnopqrstuvwxyz";
 	static const size_t alen = sizeof(alphanum);
-	for (size_t i = 0; i < len; ++i)
+	size_t i;
+	for (i = 0; i < len; ++i)
 		out[i] = alphanum[rand() % (alen - 1)];
 	out[len] = '\0';
 }
@@ -108,7 +109,8 @@ test_keys(const struct test_params *params)
 {
 	char reqdata[REQUEST_BODY_MAXLEN];
 
-	for (uint32_t i = 0; i < params->count; i++) {
+	uint32_t i;
+	for (i = 0; i < params->count; i++) {
 		char *r = reqdata;
 		params->keygen(r, params->keygen_params);
 	}
@@ -119,7 +121,8 @@ test_selects(const struct test_params *params)
 {
 	char reqdata[REQUEST_BODY_MAXLEN];
 
-	for (uint32_t i = 0; i < params->count; i++) {
+	uint32_t i;
+	for (i = 0; i < params->count; i++) {
 		char *r = reqdata;
 		char *key_end = params->keygen(r, params->keygen_params);
 		box_tuple_t *result;
@@ -133,7 +136,8 @@ test_replaces(const struct test_params *params)
 {
 	char reqdata[REQUEST_BODY_MAXLEN];
 
-	for (uint32_t i = 0; i < params->count; i++) {
+	uint32_t i;
+	for (i = 0; i < params->count; i++) {
 		char *r = reqdata;
 		char *tuple_end = params->keygen(r, params->keygen_params);
 		box_replace(params->space_id, r, tuple_end, 0);
@@ -145,7 +149,8 @@ test_selrepl(const struct test_params *params)
 {
 	char reqdata[REQUEST_BODY_MAXLEN];
 
-	for (uint32_t i = 0; i < params->count; i++) {
+	uint32_t i;
+	for (i = 0; i < params->count; i++) {
 		char *r = reqdata;
 		char *rend = params->keygen(r, params->keygen_params);
 		box_tuple_t *result;
@@ -160,7 +165,8 @@ test_updates(const struct test_params *params)
 	char reqdata[REQUEST_BODY_MAXLEN];
 	char reqdata2[REQUEST_BODY_MAXLEN];
 
-	for (uint32_t i = 0; i < params->count; i++) {
+	uint32_t i;
+	for (i = 0; i < params->count; i++) {
 		char *r = reqdata;
 		char *rend = params->keygen(r, params->keygen_params);
 		char *r2 = reqdata2;
@@ -179,7 +185,8 @@ test_deletes(const struct test_params *params)
 {
 	char reqdata[REQUEST_BODY_MAXLEN];
 
-	for (uint32_t i = 0; i < params->count; i++) {
+	uint32_t i;
+	for (i = 0; i < params->count; i++) {
 		char *r = reqdata;
 		const char *key_end = params->keygen(r, params->keygen_params);
 		box_delete(params->space_id, 0, r, key_end, 0);
