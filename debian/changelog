@@ -1,0 +1,5 @@
+tarantool-cbench (1.0.0-1) unstable; urgency=low
+
+  * Initial release
+
+ -- Roman Tsisyk <roman@tarantool.org>  Wed, 17 Feb 2016 22:22:18 +0300
