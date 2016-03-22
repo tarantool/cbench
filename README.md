@@ -61,3 +61,15 @@ A provided script also saves results in JSON format into a file in the current d
 Please report bugs at http://github.com/tarantool/tarantool/issues We also warmly welcome your feedback in the discussion mailing list, tarantool@googlegroups.com.
 
 Thank you for your interest in Tarantool!
+
+## Microb integration
+To interact with microbench service follow next steps:
+* Get api token from tarantool dev team
+* Add token into your build infrastructure
+* run `cbench_runner.lua`:
+```
+tarantool cbench_runner.lua <API_TOKEN>
+```
+* Result: you can see cbench in microb dashboard
+
+N.B.: tarantool-http module required for microb integration
