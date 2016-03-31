@@ -100,26 +100,6 @@ local get_test = function(name)
     return libbench["test_"..name]
 end
 
---- Print spaces configuration for 1.4.x
-local show_config = function(workloads)
-    -- Print required configuration
-    print('# Please add to your tarantool.cfg')
-    for space_id, wl in ipairs(workloads) do
-        space_id = space_id - 1
-        print(string.format('space[%d].enabled = 1', space_id))
-        print(string.format('space[%d].index[0].unique = 1', space_id))
-        print(string.format('space[%d].index[0].type = \"%s\"',
-                space_id, string.upper(wl.type)))
-        for fno, ftype in ipairs(wl.parts) do
-            print(string.format('space[%d].index[0].key_field[%d].fieldno = %d',
-                    space_id, fno - 1, fno - 1))
-            print(string.format('space[%d].index[0].key_field[%d].type = "%s"',
-                    space_id, fno - 1, ftype))
-        end
-        print('')
-    end
-end
-
 -- Run single test and measure time
 local bench = function(test, tparams)
     builtin.srand(0)
@@ -158,21 +138,15 @@ local run = function(workloads, count, rep)
         tparams.space_id = space_id
         tparams.count = count
 
-        if box.info.version == nil or string.find(box.info.version, "1.6.") == 1 then
-            -- Create required spaces using box.schema API
-            local space_name = 'space'..tostring(space_id)
-            local space = box.schema.create_space(space_name, { id = space_id })
-            local parts = {}
-            for fno, ftype in ipairs(wl.parts) do
-                table.insert(parts, fno)
-                table.insert(parts, ftype)
-            end
-            space:create_index('primary', { type = wl.type, parts = parts })
-        elseif box.space[space_id] == nil then
-            -- All required spaces must be manually added to tarantool.cfg.
-            -- Print required configuration and exit.
-            return show_config(workloads)
+        -- Create required spaces using box.schema API
+        local space_name = 'space'..tostring(space_id)
+        local space = box.schema.create_space(space_name, { id = space_id })
+        local parts = {}
+        for fno, ftype in ipairs(wl.parts) do
+            table.insert(parts, fno)
+            table.insert(parts, ftype)
         end
+        space:create_index('primary', { type = wl.type, parts = parts })
 
         local rt = {}
         local rk = 0

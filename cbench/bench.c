@@ -201,5 +201,6 @@ LUA_API
 int
 luaopen_cbench_bench(lua_State *L)
 {
-	 return 0;
+	(void) L;
+	return 0;
 }
