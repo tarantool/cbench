@@ -32,7 +32,7 @@ external_dependencies = {
         header = 'tarantool/module.h'
     };
     MSGPUCK   = {
-        header = 'msgpuck/msgpuck.h'
+        header = 'msgpuck.h'
     };
 }
 
