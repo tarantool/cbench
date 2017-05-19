@@ -6,14 +6,15 @@ box.cfg{
     snap_dir = '.',
     work_dir = '.',    
 }
-
+package.path = package.path .. ";../http/?.lua"
+package.cpath = package.cpath .. ";../http/?.so"
 local bench = require('cbench')
 local http = require('http.client')
 
 -- settings
 local iters = 2
 local count = 1000000
-local api_uri= 'http://sh5.tarantool.org/push'
+local api_uri= 'http://bench.tarantool.org/push'
 local token = arg[1]
 
 if token == nil then
@@ -28,7 +29,7 @@ function split(str, delim)
         return { str }
     end
     local result,pat,lastpos = {},"(.-)" .. delim .. "()",nil
-    for part, pos in string.gfind(str, pat) do
+    for part, pos in string.gmatch(str, pat) do
         table.insert(result, part)
         lastpos = pos
     end
@@ -50,18 +51,24 @@ end
 -- Workloads
 local tests = {'replaces', 'selects', 'selrepl', 'updates', 'deletes'}
 local workloads = {
-    {tests = tests, type = 'hash', parts = { 'num'}},
-    {tests = tests, type = 'hash', parts = { 'str' }},
-    {tests = tests, type = 'hash', parts = { 'num', 'num' }},
-    {tests = tests, type = 'hash', parts = { 'num', 'str'}},
-    {tests = tests, type = 'hash', parts = { 'str', 'num' }},
-    {tests = tests, type = 'hash', parts = { 'str', 'str' }},
-    {tests = tests, type = 'tree', parts = { 'num' }},
-    {tests = tests, type = 'tree', parts = { 'str' }},
-    {tests = tests, type = 'tree', parts = { 'num', 'num' }},
-    {tests = tests, type = 'tree', parts = { 'num', 'str' }},
-    {tests = tests, type = 'tree', parts = { 'str', 'num' }},
-    {tests = tests, type = 'tree', parts = { 'str', 'str' }}
+    {tests = tests, type = 'hash', parts = { 'num'}, engine='memtx'},
+    {tests = tests, type = 'hash', parts = { 'str' }, engine='memtx'},
+    {tests = tests, type = 'hash', parts = { 'num', 'num' }, engine='memtx'},
+    {tests = tests, type = 'hash', parts = { 'num', 'str'}, engine='memtx'},
+    {tests = tests, type = 'hash', parts = { 'str', 'num' }, engine='memtx'},
+    {tests = tests, type = 'hash', parts = { 'str', 'str' }, engine='memtx'},
+    {tests = tests, type = 'tree', parts = { 'num' }, engine='memtx'},
+    {tests = tests, type = 'tree', parts = { 'str' }, engine='memtx'},
+    {tests = tests, type = 'tree', parts = { 'num', 'num' }, engine='memtx'},
+    {tests = tests, type = 'tree', parts = { 'num', 'str' }, engine='memtx'},
+    {tests = tests, type = 'tree', parts = { 'str', 'num' }, engine='memtx'},
+    {tests = tests, type = 'tree', parts = { 'str', 'str' }, engine='memtx'},
+    {tests = tests, type = 'tree', parts = { 'num' }, engine='vinyl'},
+    {tests = tests, type = 'tree', parts = { 'str' }, engine='vinyl'},
+    {tests = tests, type = 'tree', parts = { 'num', 'num' }, engine='vinyl'},
+    {tests = tests, type = 'tree', parts = { 'num', 'str' }, engine='vinyl'},
+    {tests = tests, type = 'tree', parts = { 'str', 'num' }, engine='vinyl'},
+    {tests = tests, type = 'tree', parts = { 'str', 'str' }, engine='vinyl'}
 }
 
 function export(name, bench_key, value)
@@ -77,6 +84,7 @@ function export(name, bench_key, value)
     if r.status ~= 200 then
         print('Microb service error')
         print('Status code =', r.status)
+	print(require('json').encode(r))
     end
 end
 

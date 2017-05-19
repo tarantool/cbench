@@ -140,11 +140,15 @@ local run = function(workloads, count, rep)
 
         -- Create required spaces using box.schema API
         local space_name = 'space'..tostring(space_id)
-        local space = box.schema.create_space(space_name, { id = space_id })
+        local space = box.schema.create_space(space_name, { id = space_id, engine = wl.engine })
         local parts = {}
         for fno, ftype in ipairs(wl.parts) do
             table.insert(parts, fno)
-            table.insert(parts, ftype)
+            if ftype == 'num' then
+                table.insert(parts, 'unsigned')
+            else
+                table.insert(parts, 'string')
+            end
         end
         space:create_index('primary', { type = wl.type, parts = parts })
 
@@ -165,7 +169,7 @@ local run = function(workloads, count, rep)
         local index_description = table.concat(wl.parts, " + ")
 
         local res = {}
-        local wldescription = string.upper(wl.type) .. " " .. index_description
+        local wldescription = wl.engine .. " " .. string.upper(wl.type) .. " " .. index_description
         print(wldescription)
         print('----------------------------------')
         for wid, wname in ipairs(wl.tests) do
