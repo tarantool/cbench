@@ -181,6 +181,27 @@ test_updates(const struct test_params *params)
 }
 
 void
+test_upserts(const struct test_params *params)
+{
+	char reqdata[REQUEST_BODY_MAXLEN];
+	char reqdata2[REQUEST_BODY_MAXLEN];
+
+	uint32_t i;
+	for (i = 0; i < params->count; i++) {
+		char *r = reqdata;
+		char *rend = params->keygen(r, params->keygen_params);
+		char *r2 = reqdata2;
+		r2 = mp_encode_array(r2, 1);
+		r2 = mp_encode_array(r2, 3);
+		r2 = mp_encode_str(r2, "!", 1);
+		r2 = mp_encode_int(r2, -1);
+		r2 = mp_encode_uint(r2, 0);
+		box_upsert(params->space_id, 0, r, rend, reqdata2, r2, 0, 0);
+	}
+
+}
+
+void
 test_deletes(const struct test_params *params)
 {
 	char reqdata[REQUEST_BODY_MAXLEN];

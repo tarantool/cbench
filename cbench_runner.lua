@@ -48,7 +48,7 @@ function urlencode(t)
 end
 
 -- Workloads
-local tests = {'replaces', 'selects', 'selrepl', 'updates', 'deletes'}
+local tests = {'replaces', 'selects', 'selrepl', 'updates', 'deletes', 'upserts'}
 local workloads = {
     {tests = tests, type = 'hash', parts = { 'num'}},
     {tests = tests, type = 'hash', parts = { 'str' }},

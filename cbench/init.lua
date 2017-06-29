@@ -68,6 +68,9 @@ ffi.cdef([[
     test_updates(const struct test_params *params);
 
     void
+    test_upserts(const struct test_params *params);
+
+    void
     test_deletes(const struct test_params *params);
 
     /* }}} */
