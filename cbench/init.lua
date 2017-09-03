@@ -116,8 +116,7 @@ end
 local run = function(workloads, count, rep)
     if rep == nil then rep = 1 end
     -- Check arguments
-    for space_id, wl in ipairs(workloads) do
-        space_id = space_id - 1
+    for _, wl in ipairs(workloads) do
         -- Check that generator exists
         get_keygen(wl.parts)
         -- Check tests
@@ -131,7 +130,7 @@ local run = function(workloads, count, rep)
     local kparams = ffi.new('struct keygen_params')
 
     for space_id, wl in ipairs(workloads) do
-        space_id = space_id - 1
+        space_id = space_id + box.schema.SYSTEM_ID_MAX
         kparams.len = 32
         tparams.keygen = get_keygen(wl.parts)
         tparams.keygen_params = kparams
