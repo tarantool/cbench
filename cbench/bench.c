@@ -19,13 +19,29 @@ nowtime(void)
 	return t.tv_sec + t.tv_usec * 1e-6;
 }
 
-void
+static void
 randstr(char *out, size_t len)
 {
 	static const char alphanum[] =
 			"0123456789-_"
 			"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 			"abcdefghijklmnopqrstuvwxyz";
+	static const size_t alen = sizeof(alphanum);
+	size_t i;
+	for (i = 0; i < len; ++i)
+		out[i] = alphanum[rand() % (alen - 1)];
+	out[len] = '\0';
+}
+
+static void
+randustr(char *out, size_t len)
+{
+	static const char alphanum[] =
+			"0123456789-_"
+			"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+			"abcdefghijklmnopqrstuvwxyz"
+			"АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧЩЩЪЫЬЭЮЯ"
+			"абвгдеёжзийклмнопрстуфхцчщщъыьэюя";
 	static const size_t alen = sizeof(alphanum);
 	size_t i;
 	for (i = 0; i < len; ++i)
@@ -56,6 +72,15 @@ gen_str(char *r, const struct keygen_params *params)
 	return r;
 }
 
+API_EXPORT char *
+gen_ustr(char *r, const struct keygen_params *params)
+{
+	char buf[params->len + 1];
+	r = mp_encode_array(r, 1);
+	randustr(buf, params->len);
+	r = mp_encode_str(r, buf, params->len);
+	return r;
+}
 char *
 gen_num_num(char *r, const struct keygen_params *params)
 {

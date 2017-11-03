@@ -28,6 +28,9 @@ API_EXPORT char *
 gen_str(char *r, const struct keygen_params *params);
 
 API_EXPORT char *
+gen_ustr(char *r, const struct keygen_params *params);
+
+API_EXPORT char *
 gen_num_num(char *r, const struct keygen_params *params);
 
 API_EXPORT char *

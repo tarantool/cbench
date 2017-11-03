@@ -16,6 +16,7 @@ workloads = {
     {tests = tests, type = 'hash', parts = { 'num'}},
     {tests = tests, type = 'hash', parts = { 'num' }},
     {tests = tests, type = 'hash', parts = { 'str' }},
+    {tests = tests, type = 'hash', parts = { 'ustr' }},
 --[[
     {tests = tests, type = 'hash', parts = { 'num', 'num' }},
     {tests = tests, type = 'hash', parts = { 'num', 'str'}},

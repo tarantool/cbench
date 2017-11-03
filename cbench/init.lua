@@ -28,6 +28,9 @@ ffi.cdef([[
     gen_str(char *r, const struct keygen_params *params);
 
     char *
+    gen_ustr(char *r, const struct keygen_params *params);
+
+    char *
     gen_num_num(char *r, const struct keygen_params *params);
 
     char *
@@ -142,8 +145,17 @@ local run = function(workloads, count, rep)
         local space = box.schema.create_space(space_name, { id = space_id })
         local parts = {}
         for fno, ftype in ipairs(wl.parts) do
-            table.insert(parts, fno)
-            table.insert(parts, ftype)
+            local part = {}
+            table.insert(part, fno)
+            if ftype == 'num' then
+                table.insert(part, 'unsigned')
+            elseif ftype == 'str' then
+                table.insert(part, 'string')
+            elseif ftype == 'ustr' then
+                table.insert(part, 'string')
+                part.collation = 'unicode'
+            end
+            table.insert(parts, part)
         end
         space:create_index('primary', { type = wl.type, parts = parts })
 
