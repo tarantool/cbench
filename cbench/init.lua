@@ -113,7 +113,7 @@ end
 -- @param workloads (table) workloads description
 -- @param count (uint) how many keys to benchmark
 -- @param rep (uint) how many times to repeat each workload
-local run = function(workloads, count, rep)
+local run = function(workloads, count, rep, engine)
     if rep == nil then rep = 1 end
     -- Check arguments
     for _, wl in ipairs(workloads) do
@@ -139,7 +139,7 @@ local run = function(workloads, count, rep)
 
         -- Create required spaces using box.schema API
         local space_name = 'space'..tostring(space_id)
-        local space = box.schema.create_space(space_name, { id = space_id })
+        local space = box.schema.create_space(space_name, { engine = engine, id = space_id })
         local parts = {}
         for fno, ftype in ipairs(wl.parts) do
             table.insert(parts, fno)
