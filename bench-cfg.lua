@@ -1,9 +1,23 @@
 #!/usr/bin/env tarantool
 
+
+if #arg < 1 then
+    print('Please specify engine [memtex] or [vinyl]')
+    os.exit(1)
+end
+local engine = arg[1]
+
+if engine == 'vinyl' and #arg < 2 then
+    print('Please specify wal_mode [write] or [fsync]')
+    os.exit(1)
+end
+
+local wal_mode = arg[2]
+
 box.cfg {
     slab_alloc_arena    = 1,
     pid_file            = "tarantool.pid",
-    wal_mode            = "none",
+    wal_mode            = wal_mode,
     snap_dir = ".",
     work_dir = "."
 }
@@ -35,7 +49,7 @@ local json = require('json')
 
 print('Benchmarking...')
 -- Run benchmark
-result = bench.run(workloads, 1000000, 5);
+result = bench.run(workloads, 1000000, 5, engine);
 print('Done')
 
 -- Encode the result and save to a file
