@@ -27,9 +27,7 @@ tests = {'replaces', 'selects', 'selrepl', 'updates', 'deletes'}
 -- Workloads
 workloads = {
     -- Run one extra test to warm up the server
-    {tests = tests, type = 'hash', parts = { 'num'}},
-    {tests = tests, type = 'hash', parts = { 'num' }},
-    {tests = tests, type = 'hash', parts = { 'str' }},
+    {tests = tests, type = 'tree', parts = { 'str' }},
 --[[
     {tests = tests, type = 'hash', parts = { 'num', 'num' }},
     {tests = tests, type = 'hash', parts = { 'num', 'str'}},
@@ -49,7 +47,7 @@ local json = require('json')
 
 print('Benchmarking...')
 -- Run benchmark
-result = bench.run(workloads, 1000000, 5, engine);
+result = bench.run(workloads, 100000, 5, engine);
 print('Done')
 
 -- Encode the result and save to a file
