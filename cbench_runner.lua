@@ -96,7 +96,7 @@ end
 function export(name, bench_key, value)
     local chart_name = name:gsub(' ', '_'):gsub('+_', ''):lower()
     local result = {
-        key = token, name = 'cb.' .. bench_key .. '.' .. chart_name,
+        name = 'cb.' .. bench_key .. '.' .. chart_name,
         param = tostring(math.floor(value)), unit = 'rps',
         tab = 'cbench.' .. chart_name, v = version
     }
