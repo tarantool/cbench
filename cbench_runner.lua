@@ -1,13 +1,14 @@
 --- init tarantool db wor tests
 
-
-
 if #arg < 1 then
     print('Please specify engine [memtx] or [vinyl]')
     os.exit(1)
 end
 
 local engine = arg[1]
+
+local wal_mode
+local count
 
 if engine == 'vinyl' then
     if #arg < 2 then
@@ -40,20 +41,7 @@ end
 
 local version = box.info.version
 
-function split(str, delim)
-    if string.find(str, delim) == nil then
-        return { str }
-    end
-    local result, pat, lastpos = {}, "(.-)" .. delim .. "()", nil
-    for part, pos in string.gfind(str, pat) do
-        table.insert(result, part)
-        lastpos = pos
-    end
-    table.insert(result, string.sub(str, lastpos))
-    return result
-end
-
-function urlencode(t)
+local function urlencode(t)
     local result = '?'
     for key, val in pairs(t) do
         if result ~= '?' then
@@ -66,6 +54,7 @@ end
 
 -- Workloads
 local tests = { 'replaces', 'selects', 'selrepl', 'updates', 'deletes' }
+local workloads
 if engine == 'vinyl' then
     workloads = {
         { tests = tests, type = 'tree', parts = { 'num' } },
@@ -93,7 +82,7 @@ if engine == 'memtx' then
     }
 end
 
-function export(name, bench_key, value)
+local function export(name, bench_key, value)
     local chart_name = name:gsub(' ', '_'):gsub('+_', ''):lower()
     local result = {
         name = 'cb.' .. bench_key .. '.' .. chart_name,
@@ -103,7 +92,7 @@ function export(name, bench_key, value)
     print(urlencode(result))
 end
 
-function run()
+local function run()
     local benches = bench.run(workloads, count, iterations, engine)
     for _, data in pairs(benches) do
         local name = data[1]
@@ -113,5 +102,8 @@ function run()
         end
     end
 end
+
 run()
 os.exit()
+
+-- vim:ts=4:sw=4:expandtab
