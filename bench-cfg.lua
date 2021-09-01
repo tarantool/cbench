@@ -1,18 +1,17 @@
-#!/usr/bin/env tarantool
+#!/usr/bin/env ../src/tarantool
 
+os.execute('rm -rf *.snap *.xlog *.vylog ./512 ./513 ./514 ./515 ./516 ./517 ./518 ./519 ./520 ./521')
+
+local engine = arg[1]
+local wal_mode = arg[2]
 
 if #arg < 1 then
-    print('Please specify engine [memtex] or [vinyl]')
-    os.exit(1)
-end
-local engine = arg[1]
-
-if engine == 'vinyl' and #arg < 2 then
-    print('Please specify wal_mode [write] or [fsync]')
-    os.exit(1)
+    engine = 'memtx'
 end
 
-local wal_mode = arg[2]
+if #arg < 2 then
+    wal_mode = 'none'
+end
 
 box.cfg {
     slab_alloc_arena    = 1,
@@ -27,9 +26,11 @@ tests = {'replaces', 'selects', 'selrepl', 'updates', 'deletes'}
 -- Workloads
 workloads = {
     -- Run one extra test to warm up the server
-    {tests = tests, type = 'hash', parts = { 'num'}},
+    {tests = tests, type = 'hash', parts = { 'num' }},
     {tests = tests, type = 'hash', parts = { 'num' }},
     {tests = tests, type = 'hash', parts = { 'str' }},
+    {tests = tests, type = 'tree', parts = { 'num' }},
+    {tests = tests, type = 'tree', parts = { 'str' }},
 --[[
     {tests = tests, type = 'hash', parts = { 'num', 'num' }},
     {tests = tests, type = 'hash', parts = { 'num', 'str'}},

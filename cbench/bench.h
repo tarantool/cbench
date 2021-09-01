@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include <tarantool/module.h>
+#include <module.h>
 
 /* {{{{ Utils */
 
