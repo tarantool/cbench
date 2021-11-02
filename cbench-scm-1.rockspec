@@ -2,7 +2,7 @@ package = 'cbench'
 version = 'scm-1'
 
 source  = {
-    url    = 'git://github.com/tarantool/cbench.git';
+    url    = 'git+https://github.com/tarantool/cbench.git';
     branch = 'master';
 }
 
