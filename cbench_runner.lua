@@ -55,27 +55,27 @@ local tests = { 'replaces', 'selects', 'selrepl', 'updates', 'deletes' }
 local workloads
 if engine == 'vinyl' then
     workloads = {
-        { tests = tests, type = 'tree', parts = { 'num' } },
+        { tests = tests, type = 'tree', parts = { 'unsigned' } },
         { tests = tests, type = 'tree', parts = { 'str' } },
-        { tests = tests, type = 'tree', parts = { 'num', 'num' } },
-        { tests = tests, type = 'tree', parts = { 'num', 'str' } },
-        { tests = tests, type = 'tree', parts = { 'str', 'num' } },
+        { tests = tests, type = 'tree', parts = { 'unsigned', 'unsigned' } },
+        { tests = tests, type = 'tree', parts = { 'unsigned', 'str' } },
+        { tests = tests, type = 'tree', parts = { 'str', 'unsigned' } },
         { tests = tests, type = 'tree', parts = { 'str', 'str' } }
     }
 end
 if engine == 'memtx' then
     workloads = {
-        { tests = tests, type = 'tree', parts = { 'num' } },
+        { tests = tests, type = 'tree', parts = { 'unsigned' } },
         { tests = tests, type = 'tree', parts = { 'str' } },
-        { tests = tests, type = 'tree', parts = { 'num', 'num' } },
-        { tests = tests, type = 'tree', parts = { 'num', 'str' } },
-        { tests = tests, type = 'tree', parts = { 'str', 'num' } },
+        { tests = tests, type = 'tree', parts = { 'unsigned', 'unsigned' } },
+        { tests = tests, type = 'tree', parts = { 'unsigned', 'str' } },
+        { tests = tests, type = 'tree', parts = { 'str', 'unsigned' } },
         { tests = tests, type = 'tree', parts = { 'str', 'str' } },
-        { tests = tests, type = 'hash', parts = { 'num' } },
+        { tests = tests, type = 'hash', parts = { 'unsigned' } },
         { tests = tests, type = 'hash', parts = { 'str' } },
-        { tests = tests, type = 'hash', parts = { 'num', 'num' } },
-        { tests = tests, type = 'hash', parts = { 'num', 'str' } },
-        { tests = tests, type = 'hash', parts = { 'str', 'num' } },
+        { tests = tests, type = 'hash', parts = { 'unsigned', 'unsigned' } },
+        { tests = tests, type = 'hash', parts = { 'unsigned', 'str' } },
+        { tests = tests, type = 'hash', parts = { 'str', 'unsigned' } },
         { tests = tests, type = 'hash', parts = { 'str', 'str' } },
     }
 end
