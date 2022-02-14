@@ -23,11 +23,9 @@ elseif engine == 'memtx' then
 end
 
 box.cfg {
-    slab_alloc_arena = 1,
+    memtx_memory = 1024^3,
     pid_file = 'tarantool.pid',
     wal_mode = wal_mode,
-    snap_dir = '.',
-    work_dir = '.',
 }
 
 local bench = require('cbench')

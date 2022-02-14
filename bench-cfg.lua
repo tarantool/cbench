@@ -15,11 +15,9 @@ end
 local wal_mode = arg[2]
 
 box.cfg {
-    slab_alloc_arena    = 1,
+    memtx_memory        = 1024^3,
     pid_file            = "tarantool.pid",
     wal_mode            = wal_mode,
-    snap_dir = ".",
-    work_dir = "."
 }
 
 -- Tests to run
