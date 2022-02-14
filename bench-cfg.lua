@@ -2,7 +2,7 @@
 
 
 if #arg < 1 then
-    print('Please specify engine [memtex] or [vinyl]')
+    print('Please specify engine [memtx] or [vinyl]')
     os.exit(1)
 end
 local engine = arg[1]
