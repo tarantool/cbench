@@ -38,7 +38,7 @@ randstr(char *out, size_t len)
 /* {{{ Generators */
 
 char *
-gen_num(char *r, const struct keygen_params *params)
+gen_unsigned(char *r, const struct keygen_params *params)
 {
 	(void) params;
 	r = mp_encode_array(r, 1);
@@ -57,7 +57,7 @@ gen_str(char *r, const struct keygen_params *params)
 }
 
 char *
-gen_num_num(char *r, const struct keygen_params *params)
+gen_unsigned_unsigned(char *r, const struct keygen_params *params)
 {
 	(void) params;
 	r = mp_encode_array(r, 2);
@@ -79,7 +79,7 @@ gen_str_str(char *r, const struct keygen_params *params)
 }
 
 char *
-gen_num_str(char *r, const struct keygen_params *params)
+gen_unsigned_str(char *r, const struct keygen_params *params)
 {
 	char buf[params->len + 1];
 	r = mp_encode_array(r, 2);
@@ -90,7 +90,7 @@ gen_num_str(char *r, const struct keygen_params *params)
 }
 
 char *
-gen_str_num(char *r, const struct keygen_params *params)
+gen_str_unsigned(char *r, const struct keygen_params *params)
 {
 	char buf[params->len + 1];
 	r = mp_encode_array(r, 2);
